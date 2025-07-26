@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Quién Quiere Ser Millonario? - Edición Células</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Tone.js for sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a202c, #2d3748); /* Dark gradient background */
+            color: #e2e8f0; /* Light text color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        #app {
+            background-color: #2d3748; /* Slightly lighter dark background for the app */
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Stronger shadow */
+            padding: 2.5rem;
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid #4a5568; /* Subtle border */
+        }
+
+        h1 {
+            color: #63b3ed; /* Blue for title */
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .section-title {
+            color: #9f7aea; /* Purple for section titles */
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-button {
+            background: linear-gradient(180deg, #4299e1, #3182ce); /* Blue gradient for buttons */
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.75rem; /* Rounded button corners */
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .game-button:hover:not(:disabled) {
+            background: linear-gradient(180deg, #3182ce, #2b6cb0); /* Darker blue on hover */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-button:disabled {
+            background: #4a5568; /* Grey for disabled buttons */
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        .option-button {
+            background-color: #4a5568; /* Dark grey for options */
+            color: #e2e8f0;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            text-align: left;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            border: 1px solid #636b77;
+            cursor: pointer;
+        }
+
+        .option-button:hover:not(:disabled) {
+            background-color: #636b77; /* Lighter grey on hover */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .option-button:disabled {
+            background-color: #2d3748; /* Even darker when disabled by 50/50 */
+            color: #718096;
+            cursor: not-allowed;
+            opacity: 0.6;
+            box-shadow: none;
+            border: 1px dashed #4a5568;
+        }
+
+        #message-box {
+            min-height: 4rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            background-color: #2c5282; /* Blueish background for messages */
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #message-box.error {
+            background-color: #c53030; /* Red for error messages */
+        }
+
+        #message-box.success {
+            background-color: #38a169; /* Green for success messages */
+        }
+
+        #audience-poll {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: #4a5568;
+            border-radius: 0.5rem;
+            text-align: left;
+        }
+        .poll-bar-container {
+            background-color: #2d3748;
+            border-radius: 0.25rem;
+            height: 15px;
+            margin-bottom: 5px;
+            overflow: hidden;
+        }
+        .poll-bar {
+            height: 100%;
+            background-color: #63b3ed;
+            border-radius: 0.25rem;
+            transition: width 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="relative">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-6">¿Quién Quiere Ser Millonario?</h1>
+        <h2 class="text-2xl md:text-3xl font-bold mb-8 text-purple-400">- Edición Células -</h2>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="p-6">
+            <p class="text-lg mb-4">¡Bienvenidos a "¿Quién Quiere Ser Millonario?"! Hoy pondremos a prueba sus conocimientos sobre células.</p>
+            <p class="text-lg mb-8">Cada respuesta correcta te otorgará puntos que se sumarán a tu calificación final. ¡Prepárense para aprender y divertirse!</p>
+
+            <h3 class="section-title">Instrucciones del Juego:</h3>
+            <ul class="list-disc list-inside text-left mx-auto max-w-md mb-8 text-lg leading-relaxed">
+                <li class="mb-2">Cada pregunta tendrá cuatro opciones: A, B, C y D.</li>
+                <li class="mb-2">La dificultad aumentará con cada pregunta.</li>
+                <li class="mb-2">Cada respuesta correcta suma 10 puntos.</li>
+                <li>Si respondes incorrectamente, el juego se reinicia desde la primera pregunta.</li>
+            </ul>
+
+            <h3 class="section-title">Comodines:</h3>
+            <ul class="list-disc list-inside text-left mx-auto max-w-md mb-8 text-lg leading-relaxed">
+                <li class="mb-2"><strong>Comodín 50/50:</strong> Elimina dos respuestas incorrectas.</li>
+                <li><strong>Comodín Pregunta al Público:</strong> Puedes pedir ayuda a tus compañeros.</li>
+            </ul>
+
+            <button id="start-game-button" class="game-button text-xl px-8 py-3 mt-4">¡Comenzar Juego!</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden">
+            <div id="question-container" class="bg-gray-700 p-6 rounded-xl shadow-lg mb-8">
+                <p id="question-text" class="text-xl md:text-2xl font-semibold text-white mb-4"></p>
+            </div>
+
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <button class="option-button" data-option="A"></button>
+                <button class="option-button" data-option="B"></button>
+                <button class="option-button" data-option="C"></button>
+                <button class="option-button" data-option="D"></button>
+            </div>
+
+            <div id="lifelines-container" class="flex flex-wrap justify-center gap-4 mb-8">
+                <button id="fifty-fifty-button" class="game-button px-6 py-2" disabled>50/50</button>
+                <button id="ask-audience-button" class="game-button px-6 py-2" disabled>Pregunta al Público</button>
+            </div>
+
+            <p id="score-display" class="text-xl font-bold text-yellow-400 mb-4">Puntuación: 0</p>
+
+            <div id="message-box" class="text-lg font-medium"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Tone.js for sound effects
+        let synth;
+        try {
+            synth = new Tone.Synth().toDestination();
+        } catch (e) {
+            console.error("Error initializing Tone.js:", e);
+            // Fallback: Set synth to null or a dummy object if Tone.js fails
+            synth = { triggerAttackRelease: () => console.log("Sound effect (Tone.js) not available.") };
+        }
+
+        // Game Questions
+        const questions = [
+            {
+                question: "¿Cuál es la unidad básica de la vida?",
+                options: ["A) Átomo", "B) Molécula", "C) Célula", "D) Tejido"],
+                correct: "C) Célula"
+            },
+            {
+                question: "¿Qué organelo es conocido como la 'central energética' de la célula?",
+                options: ["A) Núcleo", "B) Mitocondria", "C) Ribosoma", "D) Retículo Endoplasmático"],
+                correct: "B) Mitocondria"
+            },
+            {
+                question: "¿Qué tipo de célula no tiene un núcleo definido?",
+                options: ["A) Eucariota", "B) Procariota", "C) Animal", "D) Vegetal"],
+                correct: "B) Procariota"
+            },
+            {
+                question: "¿Cuál es la función principal del núcleo celular?",
+                options: ["A) Producción de energía", "B) Síntesis de proteínas", "C) Almacenar material genético", "D) Digestión celular"],
+                correct: "C) Almacenar material genético"
+            },
+            {
+                question: "¿Qué estructura celular es responsable de la fotosíntesis en las plantas?",
+                options: ["A) Vacuola", "B) Pared celular", "C) Cloroplasto", "D) Membrana plasmática"],
+                correct: "C) Cloroplasto"
+            },
+            {
+                question: "¿Qué organelo se encarga de empaquetar y modificar proteínas y lípidos?",
+                options: ["A) Lisosoma", "B) Peroxisoma", "C) Aparato de Golgi", "D) Centrosoma"],
+                correct: "C) Aparato de Golgi"
+            },
+            {
+                question: "¿Cuál de las siguientes es una característica distintiva de las células vegetales?",
+                options: ["A) Centriolos", "B) Lisosomas", "C) Pared celular", "D) Cilios"],
+                correct: "C) Pared celular"
+            },
+            {
+                question: "¿Qué proceso permite a las células dividirse para formar nuevas células?",
+                options: ["A) Ósmosis", "B) Difusión", "C) Mitosis", "D) Fagocitosis"],
+                correct: "C) Mitosis"
+            },
+            {
+                question: "¿Qué componente de la membrana celular es crucial para el transporte selectivo de sustancias?",
+                options: ["A) Colesterol", "B) Glucoproteínas", "C) Proteínas de canal", "D) Lípidos"],
+                correct: "C) Proteínas de canal"
+            },
+            {
+                question: "¿Qué teoría postula que las mitocondrias y los cloroplastos evolucionaron de bacterias simbióticas?",
+                options: ["A) Teoría celular", "B) Teoría endosimbiótica", "C) Teoría de la evolución", "D) Teoría de la biogénesis"],
+                correct: "B) Teoría endosimbiótica"
+            }
+        ];
+
+        // Game State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let fiftyFiftyUsed = false;
+        let askAudienceUsed = false;
+        let isPlaying = false;
+
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const startGameButton = document.getElementById('start-game-button');
+        const questionText = document.getElementById('question-text');
+        const optionButtons = document.querySelectorAll('.option-button');
+        const fiftyFiftyButton = document.getElementById('fifty-fifty-button');
+        const askAudienceButton = document.getElementById('ask-audience-button');
+        const scoreDisplay = document.getElementById('score-display');
+        const messageBox = document.getElementById('message-box');
+
+        // Sound Effect Function (Tone.js)
+        function playSuccessSound() {
+            if (synth) {
+                // A simple, pleasant tone for success
+                synth.triggerAttackRelease("C5", "8n"); // C5 note, 8th note duration
+            }
+        }
+
+        // Display Message Function
+        function showMessage(msg, type = 'info') {
+            messageBox.textContent = msg;
+            messageBox.className = 'text-lg font-medium'; // Reset classes
+            if (type === 'error') {
+                messageBox.classList.add('error');
+            } else if (type === 'success') {
+                messageBox.classList.add('success');
+            } else {
+                messageBox.classList.add('bg-blue-800'); // Default info color
+            }
+        }
+
+        // Load Question Function
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showMessage(`¡Felicidades! Has completado el juego con una puntuación final de ${score} puntos.`, 'success');
+                isPlaying = false;
+                startGameButton.textContent = "Volver a Jugar";
+                startScreen.classList.remove('hidden');
+                gameScreen.classList.add('hidden');
+                return;
+            }
+
+            const currentQuestion = questions[currentQuestionIndex];
+            questionText.textContent = `Pregunta ${currentQuestionIndex + 1}: ${currentQuestion.question}`;
+            scoreDisplay.textContent = `Puntuación: ${score}`;
+            messageBox.textContent = ''; // Clear previous messages
+            messageBox.classList.remove('error', 'success', 'bg-blue-800'); // Clear message box styling
+
+            optionButtons.forEach((button, index) => {
+                button.textContent = currentQuestion.options[index];
+                button.dataset.option = currentQuestion.options[index]; // Store full option text
+                button.disabled = false; // Re-enable all buttons
+                button.classList.remove('disabled-by-50-50'); // Remove 50/50 styling
+                button.classList.remove('bg-red-600', 'bg-green-600'); // Remove previous answer feedback colors
+                button.classList.add('bg-gray-700', 'hover:bg-gray-600'); // Restore default option button styling
+            });
+
+            // Re-enable lifelines if not used
+            fiftyFiftyButton.disabled = fiftyFiftyUsed;
+            askAudienceButton.disabled = askAudienceUsed;
+        }
+
+        // Check Answer Function
+        function checkAnswer(selectedOptionButton) {
+            if (!isPlaying) return;
+
+            const selectedAnswer = selectedOptionButton.dataset.option;
+            const currentQuestion = questions[currentQuestionIndex];
+
+            // Disable all options temporarily to prevent multiple clicks
+            optionButtons.forEach(button => button.disabled = true);
+            fiftyFiftyButton.disabled = true;
+            askAudienceButton.disabled = true;
+
+            if (selectedAnswer === currentQuestion.correct) {
+                selectedOptionButton.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                selectedOptionButton.classList.add('bg-green-600'); // Highlight correct answer
+                showMessage("¡Correcto! +10 puntos", 'success');
+                playSuccessSound();
+                score += 10;
+                currentQuestionIndex++;
+                setTimeout(() => {
+                    loadQuestion();
+                }, 1500); // Load next question after a short delay
+            } else {
+                selectedOptionButton.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                selectedOptionButton.classList.add('bg-red-600'); // Highlight incorrect answer
+                // Find and highlight the correct answer
+                optionButtons.forEach(button => {
+                    if (button.dataset.option === currentQuestion.correct) {
+                        button.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                        button.classList.add('bg-green-600');
+                    }
+                });
+                showMessage("¡Incorrecto! El juego se reinicia.", 'error');
+                setTimeout(() => {
+                    resetGame();
+                }, 2000); // Reset game after a short delay
+            }
+        }
+
+        // Lifeline: 50/50
+        function useFiftyFifty() {
+            if (fiftyFiftyUsed || !isPlaying) return;
+
+            fiftyFiftyUsed = true;
+            fiftyFiftyButton.disabled = true;
+            showMessage("Comodín 50/50 usado. Eliminando dos respuestas incorrectas...", 'info');
+
+            const currentQuestion = questions[currentQuestionIndex];
+            const incorrectOptions = Array.from(optionButtons).filter(button => button.dataset.option !== currentQuestion.correct);
+
+            // Randomly select two incorrect options to disable
+            const optionsToDisable = [];
+            while (optionsToDisable.length < 2 && incorrectOptions.length > 0) {
+                const randomIndex = Math.floor(Math.random() * incorrectOptions.length);
+                optionsToDisable.push(incorrectOptions.splice(randomIndex, 1)[0]);
+            }
+
+            optionsToDisable.forEach(button => {
+                button.disabled = true;
+                button.classList.add('disabled-by-50-50'); // Add a class for specific styling if needed
+            });
+            // Re-enable active options
+            optionButtons.forEach(button => {
+                if (!button.disabled) {
+                    button.disabled = false;
+                }
+            });
+            askAudienceButton.disabled = askAudienceUsed; // Ensure other lifeline is still correctly enabled/disabled
+        }
+
+        // Lifeline: Ask the Audience
+        function useAskAudience() {
+            if (askAudienceUsed || !isPlaying) return;
+
+            askAudienceUsed = true;
+            askAudienceButton.disabled = true;
+            showMessage("Comodín 'Pregunta al Público' usado. Aquí están los resultados:", 'info');
+
+            const currentQuestion = questions[currentQuestionIndex];
+            const correctOptionIndex = currentQuestion.options.indexOf(currentQuestion.correct);
+
+            // Simulate audience percentages
+            let percentages = [0, 0, 0, 0];
+            let remaining = 100;
+
+            // Give a higher percentage to the correct answer
+            const correctPercentage = Math.floor(Math.random() * (70 - 40 + 1)) + 40; // 40-70% for correct
+            percentages[correctOptionIndex] = correctPercentage;
+            remaining -= correctPercentage;
+
+            // Distribute remaining percentage among incorrect answers
+            const incorrectIndices = [0, 1, 2, 3].filter(i => i !== correctOptionIndex);
+            incorrectIndices.forEach(index => {
+                if (remaining > 0) {
+                    const share = Math.floor(Math.random() * (remaining + 1));
+                    percentages[index] = share;
+                    remaining -= share;
+                }
+            });
+            // Ensure total is 100 (distribute any remainder to a random option)
+            if (remaining > 0) {
+                percentages[incorrectIndices[Math.floor(Math.random() * incorrectIndices.length)]] += remaining;
+            }
+            // Shuffle percentages for incorrect options to make it less predictable
+            for (let i = incorrectIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [percentages[incorrectIndices[i]], percentages[incorrectIndices[j]]] = [percentages[incorrectIndices[j]], percentages[incorrectIndices[i]]];
+            }
+
+
+            // Display poll results
+            let pollHtml = '<div id="audience-poll" class="text-sm">';
+            currentQuestion.options.forEach((option, index) => {
+                pollHtml += `<p class="mb-1">${option}: ${percentages[index]}%</p>`;
+                pollHtml += `<div class="poll-bar-container"><div class="poll-bar" style="width: ${percentages[index]}%;"></div></div>`;
+            });
+            pollHtml += '</div>';
+            messageBox.innerHTML = `Comodín 'Pregunta al Público' usado. Aquí están los resultados:<br>${pollHtml}`;
+
+            // Re-enable options for user to choose
+            optionButtons.forEach(button => {
+                if (!button.classList.contains('disabled-by-50-50')) { // Don't re-enable if disabled by 50/50
+                    button.disabled = false;
+                }
+            });
+        }
+
+        // Start Game Function
+        function startGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            fiftyFiftyUsed = false;
+            askAudienceUsed = false;
+            isPlaying = true;
+
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        // Reset Game Function
+        function resetGame() {
+            isPlaying = false;
+            startGameButton.textContent = "Volver a Jugar";
+            startScreen.classList.remove('hidden');
+            gameScreen.classList.add('hidden');
+            showMessage("El juego ha terminado. Inténtalo de nuevo.", 'error');
+        }
+
+        // Event Listeners
+        startGameButton.addEventListener('click', startGame);
+
+        optionButtons.forEach(button => {
+            button.addEventListener('click', () => checkAnswer(button));
+        });
+
+        fiftyFiftyButton.addEventListener('click', useFiftyFifty);
+        askAudienceButton.addEventListener('click', useAskAudience);
+
+        // Initial state: show start screen
+        window.onload = () => {
+            startScreen.classList.remove('hidden');
+            gameScreen.classList.add('hidden');
+        };
+
+    </script>
+</body>
+</html>
